@@ -4,7 +4,7 @@ A single-page, self-contained book tracker: Library (To Read / Reading / Finishe
 
 ## Tech
 
-Everything lives in `index.html` — plain HTML/CSS/JS plus [Chart.js](https://www.chartjs.org/) loaded from a CDN for the stats chart. There is no build step and no server-side code.
+Everything lives in `index.html` — plain HTML/CSS/JS, with [Chart.js](https://www.chartjs.org/) bundled directly into the page (no CDN dependency). There is no build step and no server-side code. A small `sw.js` service worker caches the app shell so the hosted (Netlify) version can still open with no internet connection, once you've visited it at least once.
 
 **Data storage:** all books, settings, and the theme preference are saved in the browser's `localStorage`, on the device you're using. Nothing is synced between devices, and clearing your browser data will erase your library — use **Settings → Download Full Backup** regularly, or rely on the built-in 30-day auto CSV backup reminder.
 
@@ -12,6 +12,13 @@ Everything lives in `index.html` — plain HTML/CSS/JS plus [Chart.js](https://w
 - [Open Library Search API](https://openlibrary.org/dev/docs/api/search) — book search and cover suggestions
 - [Open Library Covers API](https://openlibrary.org/dev/docs/api/covers) — cover images
 - Google Images (opens in a new tab as a manual search shortcut; no API key or integration)
+
+## Offline behaviour
+
+- **Book data, statuses, dates, and settings** always work offline — everything is read from and written to `localStorage` on the device, with no network round-trip.
+- **The app shell itself** (this page, including the bundled chart library) is cached by `sw.js` after your first visit, so re-opening the Netlify URL works even with no connection.
+- **Search, and fetching new covers**, need a connection since they call the Open Library API — these will simply show no results/an error until you're back online. Covers already saved to a book are unaffected.
+- Opening `index.html` directly as a local file works fully offline for everything except search/new-cover-lookups; the service worker itself only registers when served over `https://` or `localhost`, since browsers block it for `file://`.
 
 ## Running locally
 
